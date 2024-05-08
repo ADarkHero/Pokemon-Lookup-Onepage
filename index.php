@@ -21,6 +21,10 @@
   <body class="d-flex flex-column h-100">
    
 <?php	
+			if(isset($_GET["error"])){
+				echo '<div class="error"><p>No Pokemon found...</p></div>'; 
+			}
+			
 			if(isset($_GET["pokemon"])) {
 				$search = $_GET["pokemon"];
 			}
@@ -35,7 +39,6 @@
 					//echo "Json: " . $json;
 		
 					$pokemonArray = json_decode($json, true);
-					
 										
 					//var_dump($pokemonArray);
 					//echo htmlspecialchars($json);
@@ -47,8 +50,10 @@
 						$pokemonArray = json_decode($json, true);
 						
 					}
+					$success = false;
 					foreach($pokemonArray["injectRpcs"][1][1]["pokemon"] as $pkmn){
 						if (strpos(strtolower($pkmn["name"]), strtolower($search)) === 0){
+							$success = true;
 							//Dirty bugfix for mew OwO
 							if(strtolower($search) == "mew" && strtolower($pkmn["name"]) == "mewtwo"){ continue; }
 ?>
@@ -216,7 +221,7 @@
 						echo "<br /><br />";
 						echo "</div>";
 					}
-				}					
+				}
 			?>
 		</div>
 	</div>
@@ -225,6 +230,13 @@
 		<?php
 							break;
 						}
+					}
+					
+					if(!$success){
+						//header('Location: index.php?pokemon=magikarp&error=true');
+						?>
+						<meta http-equiv="refresh" content="0; url=index.php?pokemon=magikarp&error=true" />
+						<?php
 					}
 				}
 				catch (Exception $e){
@@ -451,7 +463,6 @@ function getSmogonJson($pkmn){
 	try{
 		$pkmnLower = lowerDash($pkmn);
 		$filename = "json/". $pkmnLower . ".json";
-
 		//If the data was already crawled, load it from file
 		if(file_exists($filename)){
 			$json = file_get_contents($filename);
@@ -469,14 +480,13 @@ function getSmogonJson($pkmn){
 				$json = substr($json, 0, strpos($json, "</script>"));
 				$json = substr($json, strpos($json, "dexSettings = {")+14, strlen($json));
 				
-				file_put_contents($filename, $json, FILE_APPEND | LOCK_EX);
+				file_put_contents($filename, $json, LOCK_EX);
 			}
 			else
 			{
 				$json = file_get_contents("pokemon.json");
 			}	
 		}
-
 		return $json;
 	}
 	catch(Exception $ex){
