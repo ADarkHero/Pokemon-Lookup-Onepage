@@ -141,16 +141,13 @@
 			
 		<div class="row">
 			<div class="col col-4">			
-				Ability 1: <a href="https://www.smogon.com/dex/sv/abilities/<?php echo lowerDash($pkmn["abilities"][0]); ?>" target="_blank"><?php echo $pkmn["abilities"][0]; ?></a><br>
-				<?php
-					echo showAbilityInfo($pkmn["abilities"][0]);
-					
-					if(isset($pkmn["abilities"][1])){
+					<?php
+					foreach($pkmn["abilities"] as $ability){
 						?>
-						<br><br>
-						Ability 2: <a href="https://www.smogon.com/dex/sv/abilities/<?php echo lowerDash($pkmn["abilities"][1]); ?>" target="_blank"><?php echo $pkmn["abilities"][1]; ?></a><br>
+						<a href="https://www.smogon.com/dex/sv/abilities/<?php echo lowerDash($ability); ?>" target="_blank"><?php echo $ability; ?></a><br>
 						<?php
-						echo showAbilityInfo($pkmn["abilities"][1]);		
+						echo showAbilityInfo($ability);	
+						echo "<br><br>";
 					}
 					?>				
 			</div>
@@ -414,7 +411,7 @@ function displayMoveInfoAsHTML($move, $pokemonArray){
 						echo '<td class="category">' . str_replace("Non-Damaging", "No-dmg", $moveInfo["category"]) . "</td>";
 						echo '<td class="power text-end">' . $moveInfo["power"] . " DMG</td>";
 						echo '<td class="accuracy text-end">' . $moveInfo["accuracy"] . "%</td>";
-						echo '<td class="priority text-end">' . $moveInfo["priority"] . " Prio</td>";
+						echo '<td class="priority text-end">' . $moveInfo["priority"] . " Pr.</td>";
 						echo '<td class="pp text-end">' . $moveInfo["pp"] . " PP</td>";
 					echo "</tr>";
 				echo "</tbody>";
