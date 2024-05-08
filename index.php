@@ -54,6 +54,10 @@
 					foreach($pokemonArray["injectRpcs"][1][1]["pokemon"] as $pkmn){
 						if (strpos(strtolower($pkmn["name"]), strtolower($search)) === 0){
 							$success = true;
+							if(strtolower($pkmn["name"] !== strtolower($search))){
+								$json = getSmogonJson($pkmn["name"]);
+								$pokemonArray = json_decode($json, true);
+							}
 							//Dirty bugfix for mew OwO
 							if(strtolower($search) == "mew" && strtolower($pkmn["name"]) == "mewtwo"){ continue; }
 ?>
