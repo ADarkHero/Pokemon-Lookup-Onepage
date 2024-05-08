@@ -1,0 +1,74 @@
+img{
+	margin: auto;
+    display: block;
+}
+
+.progress{
+	height: 1.5rem !important;
+	margin-bottom: 0.25rem !important;
+}
+
+.strokeme {
+  color: black;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+}
+
+.flex-align {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  
+.placeholder-row{
+	  height: 2rem;
+}
+  
+  
+/***************
+* Move table
+***************/
+table{
+	width: 100%;
+}
+.type{
+	width: 20%
+} 
+.category{
+	width: 20%
+}  
+.power{
+	width: 20%
+} 
+.accuracy{
+	width: 13.33%
+} 
+.priority{
+	width: 13.33%
+} 
+.pp{
+	width: 13.33%
+} 
+  
+  
+/***************
+* Backgrounds
+***************/
+ 
+.bg-None{
+	background-color: #ffffff;
+} 
+.bg-Steel{
+	background-color: #cecfc6;
+}
+.bg-Rock{
+	background-color: #6e6c49;
+}
+.bg-Fighting{
+	background-color: #804808;
+}
+.bg-Normal{
+	background-color: #ede4e4;
+}
+.bg-Dark{
+	background-color: #363030;
+}
