@@ -3,6 +3,27 @@ img{
     display: block;
 }
 
+.error {
+    position: absolute;
+    z-index: 9999;
+    top: 25%;
+    margin: auto;
+    width: 100%;
+    border: 3px solid green;
+    padding: 10px;
+    background-color: red;
+    height: 50%;
+    color: #ffffff;
+    text-align: center;
+    
+}
+
+.error > p{
+	vertical-align: middle;
+	font-size: 500%;
+	margin-top: 10%;
+}
+
 .progress{
 	height: 1.5rem !important;
 	margin-bottom: 0.25rem !important;
@@ -71,4 +92,25 @@ table{
 }
 .bg-Dark{
 	background-color: #363030;
+}
+.bg-Grass{
+	background-color: #299e46;
+}
+.bg-Flying{
+	background-color: #80e6ed;
+}
+.bg-Psychic{
+	background-color: #bf49b5;
+}
+.bg-Ice{
+	background-color: #6ad6f7;
+}
+.bg-Fire{
+	background-color: #b5122b;
+}
+.bg-Water{
+	background-color: #0f39d4;
+}
+.bg-Electric{
+	background-color: #f5ed0a;
 }

@@ -22,18 +22,35 @@
    
 <?php	
 			if(isset($_GET["pokemon"])) {
+				$search = $_GET["pokemon"];
+			}
+			else{
+				$search = "magikarp";
+			}
 				try{
-					$json = getSmogonJson($_GET["pokemon"]);
+					$json = getSmogonJson($search);
 					//$strJsonFileContents = file_get_contents("pokemon.json");
 					//var_dump($strJsonFileContents); // show contents
+					
+					//echo "Json: " . $json;
 		
 					$pokemonArray = json_decode($json, true);
+					
 										
 					//var_dump($pokemonArray);
 					//echo htmlspecialchars($json);
 
+					if(!isset($pokemonArray["injectRpcs"][1][1]["pokemon"])){ 
+						echo '<div class="error"><p>No Pokemon found...</p></div>'; 
+						$search = "magikarp";
+						$json = getSmogonJson("magikarp"); 
+						$pokemonArray = json_decode($json, true);
+						
+					}
 					foreach($pokemonArray["injectRpcs"][1][1]["pokemon"] as $pkmn){
-						if (strpos(strtolower($pkmn["name"]), strtolower($_GET["pokemon"])) === 0){
+						if (strpos(strtolower($pkmn["name"]), strtolower($search)) === 0){
+							//Dirty bugfix for mew OwO
+							if(strtolower($search) == "mew" && strtolower($pkmn["name"]) == "mewtwo"){ continue; }
 ?>
    
 <header>
@@ -118,12 +135,15 @@
 				Ability 1: <a href="https://www.smogon.com/dex/sv/abilities/<?php echo lowerDash($pkmn["abilities"][0]); ?>" target="_blank"><?php echo $pkmn["abilities"][0]; ?></a><br>
 				<?php
 					echo showAbilityInfo($pkmn["abilities"][0]);
-				?>
-				<br><br>
-				Ability 2: <a href="https://www.smogon.com/dex/sv/abilities/<?php echo lowerDash($pkmn["abilities"][1]); ?>" target="_blank"><?php echo $pkmn["abilities"][1]; ?></a><br>
-				<?php
-					echo showAbilityInfo($pkmn["abilities"][1]);
-				?>
+					
+					if(isset($pkmn["abilities"][1])){
+						?>
+						<br><br>
+						Ability 2: <a href="https://www.smogon.com/dex/sv/abilities/<?php echo lowerDash($pkmn["abilities"][1]); ?>" target="_blank"><?php echo $pkmn["abilities"][1]; ?></a><br>
+						<?php
+						echo showAbilityInfo($pkmn["abilities"][1]);		
+					}
+					?>				
 			</div>
 			<div class="col col-8">
 				<div class="HP"><?php echo generateStatsProgressBar($pkmn["hp"], "HP"); ?></div>
@@ -138,44 +158,42 @@
 		<div class="placeholder-row"> </div>
 			
 		<div class="row">
-			<div class="col col-4">
-				<?php
-					showTypeInfo($pkmn["types"][0]);
-					if(isset($pkmn["types"][1])){ showTypeInfo($pkmn["types"][1]); }
-				?>
-			</div>
 			<?php
 				if(isset($pokemonArray["injectRpcs"][2][1]["strategies"][0]["movesets"])){
 					foreach($pokemonArray["injectRpcs"][2][1]["strategies"][0]["movesets"] as $moveset){
 						echo '<div class="col col-4">';
 						echo "<b>" . $moveset["name"] . "</b><br>";
+						echo "<br><b>Ability</b>: ";
 						foreach($moveset["abilities"] as $ability){
-							echo "Ability: " . $ability . "<br>";	
+							echo '<a data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="' . returnAbilityDescription($ability, $pokemonArray) . '">' . $ability . "</a> ";
 						}
+						echo "<br><b>Item</b>: ";
 						foreach($moveset["items"] as $item){
-							echo "Item: " . $item . "<br>";	
+							echo '<a data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="' . returnItemDescription($item, $pokemonArray) . '">' . $item . "</a> ";
 						}
+						echo "<br><b>Nature</b>: ";
 						foreach($moveset["natures"] as $nature){
-							echo "Nature: " . $nature . "<br>";	
+							echo '<a data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="' . returnNatureSummary($nature, $pokemonArray) . '">' . $nature . "</a> ";	
 						}
+						echo "<br>";
 						foreach($moveset["evconfigs"] as $ev){
 							if($ev["hp"] > 0){
-								echo "HP: " . $ev["hp"] . " ";	
+								echo "<b>HP</b>: " . $ev["hp"] . " ";	
 							}
 							if($ev["atk"] > 0){
-								echo "ATK: " . $ev["atk"] . " ";	
+								echo "<b>ATK</b>: " . $ev["atk"] . " ";	
 							}
 							if($ev["def"] > 0){
-								echo "DEF: " . $ev["def"] . " ";	
+								echo "<b>DEF</b>: " . $ev["def"] . " ";	
 							}
 							if($ev["spa"] > 0){
-								echo "SPA: " . $ev["spa"] . " ";	
+								echo "<b>SPA</b>: " . $ev["spa"] . " ";	
 							}
 							if($ev["spd"] > 0){
-								echo "SPD: " . $ev["spd"] . " ";	
+								echo "<b>SPD</b>: " . $ev["spd"] . " ";	
 							}
 							if($ev["spe"] > 0){
-								echo "SPE: " . $ev["spe"] . " ";	
+								echo "<b>SPE</b>: " . $ev["spe"] . " ";	
 							}
 							echo "<br>";
 						}
@@ -210,12 +228,8 @@
 					}
 				}
 				catch (Exception $e){
-					echo "No Pokemon found...";
+					echo '<div class="error"><p>No Pokemon found...</p></div>';
 				}
-			}
-			else{
-				echo "No Pokemon searched...";
-			}
 		?>
 	
 	  
@@ -376,7 +390,7 @@ function showTypeInfo($type){
 */
 function displayMoveInfoAsHTML($move, $pokemonArray){
 	foreach($pokemonArray["injectRpcs"][1][1]["moves"] as $moveInfo){
-		if (strpos(strtolower($move), strtolower($moveInfo["name"])) === 0){		
+		if (strtolower($move) == strtolower($moveInfo["name"])){		
 			echo "<table>";
 				echo "<tbody>";
 					echo "<tr>";
@@ -409,26 +423,66 @@ function returnMoveDescription($move, $pokemonArray){
 	}		
 }
 
+function returnNatureSummary($nature, $pokemonArray){
+	foreach($pokemonArray["injectRpcs"][1][1]["natures"] as $natureInfo){
+		if (strpos(strtolower($nature), strtolower($natureInfo["name"])) === 0){	
+			return $natureInfo["summary"];
+		}
+	}		
+}
+
+function returnItemDescription($item, $pokemonArray){
+	foreach($pokemonArray["injectRpcs"][1][1]["items"] as $itemInfo){
+		if (strpos(strtolower($item), strtolower($itemInfo["name"])) === 0){	
+			return $itemInfo["description"];
+		}
+	}		
+}
+
+function returnAbilityDescription($ability, $pokemonArray){
+	foreach($pokemonArray["injectRpcs"][1][1]["abilities"] as $abilityInfo){		
+		if (strpos(strtolower($ability), strtolower($abilityInfo["name"])) === 0){	
+			return $abilityInfo["description"];
+		}
+	}		
+}
+
 function getSmogonJson($pkmn){
-	$pkmnLower = lowerDash($pkmn);
-	$filename = "json/". $pkmnLower . ".json";
-	
-	//If the data was already crawled, load it from file
-	if(file_exists($filename)){
-		$json = file_get_contents($filename);
+	try{
+		$pkmnLower = lowerDash($pkmn);
+		$filename = "json/". $pkmnLower . ".json";
+
+		//If the data was already crawled, load it from file
+		if(file_exists($filename)){
+			$json = file_get_contents($filename);
+		}
+		//If the data was not crawled, download it from smogon
+		else{
+			//Check if url exists
+			$url = "https://www.smogon.com/dex/ss/pokemon/" . $pkmnLower . "/";
+			$headers = get_headers($url);
+			$head = $headers[0];
+			if(strpos($head, "200")){
+				echo "HEAD" . $head;
+				$content = file_get_contents($url);
+				$json = strstr($content, '<script type="text/javascript">');
+				$json = substr($json, 0, strpos($json, "</script>"));
+				$json = substr($json, strpos($json, "dexSettings = {")+14, strlen($json));
+				
+				file_put_contents($filename, $json, FILE_APPEND | LOCK_EX);
+			}
+			else
+			{
+				$json = file_get_contents("pokemon.json");
+			}	
+		}
+
+		return $json;
 	}
-	//If the data was not crawled, download it from smogon
-	else{
-		$url = "https://www.smogon.com/dex/ss/pokemon/" . $pkmnLower . "/";
-		$content = file_get_contents($url);
-		$json = strstr($content, '<script type="text/javascript">');
-		$json = substr($json, 0, strpos($json, "</script>"));
-		$json = substr($json, strpos($json, "dexSettings = {")+14, strlen($json));
-		
-		file_put_contents($filename, $json, FILE_APPEND | LOCK_EX);
+	catch(Exception $ex){
+		$json = file_get_contents("pokemon.json");
+		return $json;
 	}
-	
-	return $json;
 }
 
 
