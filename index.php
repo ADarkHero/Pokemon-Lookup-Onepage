@@ -52,12 +52,19 @@
 					}
 					$success = false;
 					foreach($pokemonArray["injectRpcs"][1][1]["pokemon"] as $pkmn){
+						//echo strtolower($pkmn["name"]) . " vs. " . strtolower($search) . "<br>";
+						
 						if (strpos(strtolower($pkmn["name"]), strtolower($search)) === 0){
+							
+							
 							$success = true;
 							if(strtolower($pkmn["name"] !== strtolower($search))){
 								$json = getSmogonJson($pkmn["name"]);
 								$pokemonArray = json_decode($json, true);
 							}
+							
+							//file_put_contents("pokemon.json", $json, LOCK_EX);
+							
 							//Dirty bugfix for mew OwO
 							if(strtolower($search) == "mew" && strtolower($pkmn["name"]) == "mewtwo"){ continue; }
 ?>
@@ -471,7 +478,7 @@ function getSmogonJson($pkmn){
 		//If the data was not crawled, download it from smogon
 		else{
 			//Check if url exists
-			$url = "https://www.smogon.com/dex/ss/pokemon/" . $pkmnLower . "/";
+			$url = "https://www.smogon.com/dex/sv/pokemon/" . $pkmnLower . "/";
 			$headers = get_headers($url);
 			$head = $headers[0];
 			if(strpos($head, "200")){
