@@ -101,11 +101,11 @@
 <main class="flex-shrink-0">
 	<div class="container">	
 		<div class="row flex-align">
-			<div class="col col-md4">
+			<div class="col-12 col-md-4">
 				<img src="https://www.smogon.com//dex/media/sprites/xy/<?php echo lowerDash($pkmn["name"]); ?>.gif"></img>
 			</div>
 	
-			<div class="col col-md4">
+			<div class="col-12 col-md-4">
 				<?php 
 					echo '<medium class="h6">' . $pkmn["name"] . '</medium>'; 
 					if($pkmn["oob"]["evos"]){
@@ -117,7 +117,7 @@
 					}
 				?>
 			</div>
-			<div class="col col-md2">
+			<div class="col-12 col-md-2">
 				<?php echo getCombinedStatsAsProgressBar($pkmn); ?>
 				<div class="progress position-relative">
 					<div class="progress-bar progress-bar-striped bg-<?php echo $pkmn["types"][0]; ?>" role="progressbar" style="width:100%"></div>
@@ -126,7 +126,7 @@
 					</medium>
 				</div>
 			</div>
-			<div class="col col-md2">
+			<div class="col-12 col-md-2">
 				<?php echo getTierAsProgressBar($pkmn["formats"][0], isset($pkmn["oob"]["evos"])) ?>
 				<div class="progress position-relative">
 					<div class="progress-bar progress-bar-striped bg-<?php if(isset($pkmn["types"][1])){ echo $pkmn["types"][1]; }else{ echo "None"; } ?>" role="progressbar" style="width:100%"></div>
@@ -140,7 +140,7 @@
 		<div class="placeholder-row"> </div>
 			
 		<div class="row">
-			<div class="col col-4">			
+			<div class="col-12 col-md-4">			
 					<?php
 					foreach($pkmn["abilities"] as $ability){
 						?>
@@ -151,7 +151,7 @@
 					}
 					?>				
 			</div>
-			<div class="col col-8">
+			<div class="col-12 col-md-8">
 				<div class="HP"><?php echo generateStatsProgressBar($pkmn["hp"], "HP"); ?></div>
 				<div class="Atk"><?php echo generateStatsProgressBar($pkmn["atk"], "Atk"); ?></div>
 				<div class="SpAtk"><?php echo generateStatsProgressBar($pkmn["spa"], "SpAtk"); ?></div>
@@ -167,7 +167,7 @@
 			<?php
 				if(isset($pokemonArray["injectRpcs"][2][1]["strategies"][0]["movesets"])){
 					foreach($pokemonArray["injectRpcs"][2][1]["strategies"][0]["movesets"] as $moveset){
-						echo '<div class="col col-4">';
+						echo '<div class="col-12 col-md-4">';
 						echo "<b>" . $moveset["name"] . "</b><br>";
 						echo "<br><b>Ability</b>: ";
 						foreach($moveset["abilities"] as $ability){
@@ -404,7 +404,7 @@ function showTypeInfo($type){
 function displayMoveInfoAsHTML($move, $pokemonArray){
 	foreach($pokemonArray["injectRpcs"][1][1]["moves"] as $moveInfo){
 		if (strtolower($move) == strtolower($moveInfo["name"])){		
-			echo "<table>";
+			echo '<table class="table table-bordered table-responsive table-sm">';
 				echo "<tbody>";
 					echo "<tr>";
 						echo '<td class="type"><a href="https://pokemondb.net/type/' . lowerDash($moveInfo["type"]) . '"  target="_blank">' . $moveInfo["type"] . "</td>";
