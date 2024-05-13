@@ -32,7 +32,13 @@
 				$search = "magikarp";
 			}
 				try{
-					$json = getSmogonJson($search);
+					if(isset($_GET["natdex"])){
+						$json = getSmogonJson($search, "sm");
+					}
+					else{
+						$json = getSmogonJson($search);
+					}
+					
 					//$strJsonFileContents = file_get_contents("pokemon.json");
 					//var_dump($strJsonFileContents); // show contents
 					
@@ -134,7 +140,7 @@
 				</div>
 			</div>
 			<div class="col-12 col-md-2">
-				<?php echo getTierAsProgressBar($pkmn["formats"][0], isset($pkmn["oob"]["evos"])) ?>
+				<?php echo getTierAsProgressBar($pkmn["formats"][0], $pkmn["name"]) ?>
 				<div class="progress position-relative">
 					<div class="progress-bar progress-bar-striped bg-<?php if(isset($pkmn["types"][1])){ echo $pkmn["types"][1]; }else{ echo "None"; } ?>" role="progressbar" style="width:100%"></div>
 					<medium class="justify-content-center d-flex position-absolute w-100 h6 strokeme">
@@ -325,7 +331,7 @@ function generateStatsProgressBar($value, $type){
 
 
 
-function getTierAsProgressBar($tier, $hasEvos){
+function getTierAsProgressBar($tier, $pkmnName){
 	$color = "";
 	$text = $tier . " / ";
 	
@@ -343,7 +349,13 @@ function getTierAsProgressBar($tier, $hasEvos){
 		case "PUBL": $text .= "E"; $color = "bg-danger"; break;
 		case "LC": $text .= "?"; $color = "bg-dark"; break;
 		case "NFE": $text .= "?"; $color = "bg-dark"; break;
-		case "National Dex": $text .= "?"; $color = "bg-dark"; break;
+		case "National Dex": 
+			$text .= "?"; 
+			$color = "bg-dark"; 
+			if(!isset($_GET["natdex"])){
+				echo '<meta http-equiv="refresh" content="0; url=index.php?pokemon=' . $pkmnName . '&natdex=true" />';
+			}
+			break;
 		default: $text .= "F"; $color = "bg-danger"; break;
 	}
 	
@@ -467,10 +479,12 @@ function returnAbilityDescription($ability, $pokemonArray){
 	}		
 }
 
-function getSmogonJson($pkmn){
+function getSmogonJson($pkmn, $gen = null){
 	try{
+		if($gen === null){ $gen = "sv"; }
+		
 		$pkmnLower = lowerDash($pkmn);
-		$filename = "json/". $pkmnLower . ".json";
+		$filename = "json/". $pkmnLower . "_" . $gen . ".json";
 		//If the data was already crawled, load it from file
 		if(file_exists($filename)){
 			$json = file_get_contents($filename);
@@ -478,11 +492,11 @@ function getSmogonJson($pkmn){
 		//If the data was not crawled, download it from smogon
 		else{
 			//Check if url exists
-			$url = "https://www.smogon.com/dex/sv/pokemon/" . $pkmnLower . "/";
+			$url = "https://www.smogon.com/dex/" . $gen . "/pokemon/" . $pkmnLower . "/";
 			$headers = get_headers($url);
+			echo $url;
 			$head = $headers[0];
 			if(strpos($head, "200")){
-				echo "HEAD" . $head;
 				$content = file_get_contents($url);
 				$json = strstr($content, '<script type="text/javascript">');
 				$json = substr($json, 0, strpos($json, "</script>"));
