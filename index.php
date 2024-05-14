@@ -92,7 +92,7 @@
             <a class="nav-link" href="https://bulbapedia.bulbagarden.net/w/index.php?title=Special%3ASearch&search=<?php echo lowerDash($pkmn["name"]); ?>&go=Go" target="_blank">Bulbapedia</a>
           </li>
 		  <li class="nav-item">
-            <a class="nav-link" href="https://www.smogon.com/dex/sv/pokemon/<?php echo lowerDash($pkmn["name"]); ?>/"  target="_blank">Smogon</a>
+            <a class="nav-link" href="https://www.smogon.com/dex/<?php if(isset($_GET["gen"])){ echo "sv"; } else { echo "sm"; }?>/pokemon/<?php echo lowerDash($pkmn["name"]); ?>/"  target="_blank">Smogon</a>
           </li>
 		  <li class="nav-item">
             <a class="nav-link" href="https://pokemondb.net/type/"  target="_blank">Type Chart</a>
@@ -146,6 +146,7 @@
 					<medium class="justify-content-center d-flex position-absolute w-100 h6 strokeme">
 						<a href="https://pokemondb.net/type/<?php if(isset($pkmn["types"][1])){ echo $pkmn["types"][1]; } ?>" target="_blank"><?php if(isset($pkmn["types"][1])){ echo $pkmn["types"][1]; } ?></a>
 					</medium>
+					
 				</div>
 			</div>
 		</div>
@@ -171,7 +172,14 @@
 				<div class="Def"><?php echo generateStatsProgressBar($pkmn["def"], "Def"); ?></div>
 				<div class="SpDef"><?php echo generateStatsProgressBar($pkmn["spd"], "SpDef"); ?></div>
 				<div class="Speed"><?php echo generateStatsProgressBar($pkmn["spe"], "Speed"); ?></div>
+				
 			</div>
+		</div>
+		
+		<div class="placeholder-row"> </div>
+		
+		<div class="row">
+			<div class="type-matchup"><?php displayTypeInfo( showTypeInfo($pkmn["types"][0], $pkmn["types"][1]) ); ?></div>
 		</div>
 		
 		<div class="placeholder-row"> </div>
@@ -302,10 +310,10 @@ function getCombinedStatsAsProgressBar($pkmn){
 	$color = "";
 	
 	switch(true){
-		case $stats > 600: $color = ""; break;
-		case $stats > 500: $color = "bg-success"; break;
-		case $stats > 400: $color = "bg-info"; break;
-		case $stats > 300: $color = "bg-warning"; break;
+		case $stats >= 575: $color = ""; break;
+		case $stats >= 500: $color = "bg-success"; break;
+		case $stats >= 400: $color = "bg-info"; break;
+		case $stats >= 300: $color = "bg-warning"; break;
 		default: $color = "bg-danger"; break;
 	}
 	
@@ -315,15 +323,15 @@ function getCombinedStatsAsProgressBar($pkmn){
 
 
 function generateStatsProgressBar($value, $type){
-	$progress = $value/80*50;
+	$progress = $value * 0.75;
 	$text = $type . ": ";
 	$color = "";
 	
 	switch(true){
-		case $value >= 120: $color = ""; break;
-		case $value >= 100: $color = "bg-success"; break;
+		case $value >= 110: $color = ""; break;
+		case $value >= 95: $color = "bg-success"; break;
 		case $value >= 80: $color = "bg-info"; break;
-		case $value >= 60: $color = "bg-warning"; break;
+		case $value >= 65: $color = "bg-warning"; break;
 		default: $color = "bg-danger"; break;
 	}
 	return returnProgressBar($color, $progress, $text, $value);
@@ -396,24 +404,53 @@ function showAbilityInfo($ability){
 
 
 
-function showTypeInfo($type){
+function showTypeInfo($type1, $type2){
 	try{		
 		$strJsonFileContents = file_get_contents("pokemon.json");
 		//var_dump($strJsonFileContents); // show contents
 		
 		$pokemonArray = json_decode($strJsonFileContents, true);
 		
-		foreach($pokemonArray["injectRpcs"][1][1]["types"] as $typ){
-			if (strpos(strtolower($typ["name"]), strtolower($type)) === 0){
-				foreach($typ["atk_effectives"] as $eff){
+		$effectiveness_array = array();
+		
+		foreach($pokemonArray["injectRpcs"][1][1]["types"] as $type){
+			if (strpos(strtolower($type["name"]), strtolower($type1)) === 0 || 
+			strpos(strtolower($type["name"]), strtolower($type2)) === 0){
+				foreach($type["atk_effectives"] as $eff){
 					if($eff[1] != 1){
-						echo "<br>" . $type . " vs. " . $eff[0] . " " . $eff[1];
+						if(isset($effectiveness_array[$eff[0]])){
+							$effectiveness_array[$eff[0]] = $effectiveness_array[$eff[0]] * $eff[1];
+						}
+						else{
+							$effectiveness_array[$eff[0]] = $eff[1];
+						}
 					}
 				}
 			}
 		}
+		
+		return $effectiveness_array;
 	}
 	catch(Exception $ex){
+	}
+}
+
+/*
+* typeInfo = array from showTypeInfo
+*/
+function displayTypeInfo($typeInfo){
+	arsort($typeInfo);
+	foreach($typeInfo as $key => $val){
+		if($val != 1){
+		?>
+		<div class="type-eff col-5 col-md-1">
+			<div class="progress position-relative progress-type type-<?php echo str_replace(".", "", $val); ?>">
+				<div class="progress-bar progress-bar-striped bg-<?php echo $key; ?>" role="progressbar" style="width:100%"></div>
+				<medium class="justify-content-center d-flex position-absolute w-100 h6 strokeme"><?php echo $key . "<br>x" . $val; ?></medium>
+			</div>
+		</div>
+		<?php
+		}
 	}
 }
 
@@ -441,7 +478,7 @@ function displayMoveInfoAsHTML($move, $pokemonArray){
 
 function returnMoveType($move, $pokemonArray){
 	foreach($pokemonArray["injectRpcs"][1][1]["moves"] as $moveInfo){
-		if (strpos(strtolower($move), strtolower($moveInfo["name"])) === 0){	
+		if (strtolower($move) === strtolower($moveInfo["name"])){	
 			return $moveInfo["type"];
 		}
 	}		

@@ -20,13 +20,16 @@ img{
 
 .error > p{
 	vertical-align: middle;
-	font-size: 500%;
-	margin-top: 10%;
+	font-size: 300%;
 }
 
 .progress{
 	height: 1.5rem !important;
 	margin-bottom: 0.25rem !important;
+}
+
+.progress-type{
+	height: 3rem !important;
 }
 
 .strokeme {
@@ -41,7 +44,15 @@ img{
   }
   
 .placeholder-row{
-	  height: 1rem;
+	  height: 0.5rem;
+}
+
+.type-eff{
+	 display: inline-block;
+}
+
+.type-matchup{
+	text-align: center;
 }
   
   
@@ -69,6 +80,30 @@ table{
 .pp{
 	width: 13.33%
 } 
+  
+
+/***************
+* Type borders
+***************/
+.type-0{
+	border: 0.25rem solid #dc3545;
+}
+.type-025{
+	border: 0.25rem solid #ffc107;
+}
+.type-05{
+	border: 0.25rem solid #ffc107;
+}
+.type-2{
+	border: 0.25rem solid #28a745;
+}
+.type-4{
+	border: 0.25rem solid #007bff;
+}
+.type-8{
+	border: 0.25rem solid #007bff;
+}
+  
   
   
 /***************
@@ -125,4 +160,10 @@ table{
 }
 .bg-Dragon{
 	background-color: #6169ad;
+}
+.bg-Fairy{
+	background-color: #ff85f5;
+}
+.bg-Bug{
+	background-color: #64de84;
 }
