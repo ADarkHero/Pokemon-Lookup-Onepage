@@ -112,7 +112,15 @@
 
 <!-- Begin page content -->
 <main class="flex-shrink-0">
-	<div class="container">	
+	<div class="container">
+		<div class="row">
+			<div class="col-12 d-md-none">
+				<form class="d-flex" action="index.php" method="get">
+				  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="pokemon">
+				  <button class="btn btn-outline-success" type="submit">Search</button>
+				</form>
+			</div>
+		</div>
 		<div class="row flex-align">
 			<div class="col-12 col-md-4">
 				<img src="https://www.smogon.com//dex/media/sprites/xy/<?php echo lowerDash($pkmn["name"]); ?>.gif"></img>
@@ -281,7 +289,7 @@
 <footer class="footer mt-auto py-3 bg-light">
   <div class="container">
     <span class="text-muted">
-		Made with ♥ by <a href="https://www.adarkhero.de" target="_blank">ADarkHero</a> | Ressources by <a href="https://www.smogon.com" target="_blank">Smogon</a>
+		Made with ♥ by <a href="https://www.adarkhero.de" target="_blank">ADarkHero</a> | Ressources by <a href="https://www.smogon.com" target="_blank">Smogon</a> and <a href="https://pokeapi.co" target="_blank">PokeAPI</a>
 	</span>
   </div>
 </footer>
