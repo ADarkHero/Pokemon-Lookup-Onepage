@@ -179,7 +179,20 @@
 		<div class="placeholder-row"> </div>
 		
 		<div class="row">
-			<div class="type-matchup"><?php displayTypeInfo( showTypeInfo($pkmn["types"][0], $pkmn["types"][1]) ); ?></div>
+			<div class="type-matchup">
+			<?php 
+				$type1 = "";
+				if(isset($pkmn["types"][1])){
+					$type1 = $pkmn["types"][1];
+				}
+				displayTypeInfo( getTypeInfo($pkmn["types"][0], $type1, "defensive"), "defensive" ); 
+			?></div>
+		</div>
+		<div class="row">
+			<div class="type-matchup">
+			<?php 
+				displayTypeInfo( getTypeInfo($pkmn["types"][0], $type1, "offensive"), "offensive" ); 
+			?></div>
 		</div>
 		
 		<div class="placeholder-row"> </div>
@@ -404,7 +417,7 @@ function showAbilityInfo($ability){
 
 
 
-function showTypeInfo($type1, $type2){
+function getTypeInfo($type1, $type2, $offDef){
 	try{		
 		$strJsonFileContents = file_get_contents("pokemon.json");
 		//var_dump($strJsonFileContents); // show contents
@@ -412,23 +425,69 @@ function showTypeInfo($type1, $type2){
 		$pokemonArray = json_decode($strJsonFileContents, true);
 		
 		$effectiveness_array = array();
+		if($type2 != ""){
+			$types_array = array($type1, $type2);
+		}
+		else{
+			$types_array = array($type1);
+		}
 		
-		foreach($pokemonArray["injectRpcs"][1][1]["types"] as $type){
-			if (strpos(strtolower($type["name"]), strtolower($type1)) === 0 || 
-			strpos(strtolower($type["name"]), strtolower($type2)) === 0){
-				foreach($type["atk_effectives"] as $eff){
-					if($eff[1] != 1){
-						if(isset($effectiveness_array[$eff[0]])){
-							$effectiveness_array[$eff[0]] = $effectiveness_array[$eff[0]] * $eff[1];
-						}
-						else{
-							$effectiveness_array[$eff[0]] = $eff[1];
-						}
-					}
+		
+		foreach($types_array as $type){
+			$filename = "json/types/" . $type . ".json";
+			$json = "";
+
+			if(file_exists($filename)){
+				$json = file_get_contents($filename);
+			}
+			//If the data was not crawled, download it from smogon
+			else{
+				//Check if url exists
+				$url = "https://pokeapi.co/api/v2/type/" . lowerDash($type) . "/";
+				
+				$headers = get_headers($url);
+				$head = $headers[0];
+				if(strpos($head, "200")){
+					$json = file_get_contents($url);
+					
+					file_put_contents($filename, $json, LOCK_EX);
+				}
+			}		
+			$typesArray = json_decode($json, true);
+			
+			if(strtolower($offDef) == "offensive"){
+				$str = "to";
+			}
+			else{
+				$str = "from";
+			}
+
+			foreach($typesArray["damage_relations"]["double_damage_" . $str] as $val){
+				if(isset($effectiveness_array[$val["name"]])){
+					$effectiveness_array[$val["name"]] = $effectiveness_array[$val["name"]] * 2;
+				}
+				else{
+					$effectiveness_array[$val["name"]] = 2;
+				}
+			}
+			foreach($typesArray["damage_relations"]["half_damage_" . $str] as $val){
+				if(isset($effectiveness_array[$val["name"]])){
+					$effectiveness_array[$val["name"]] = $effectiveness_array[$val["name"]] * 0.5;
+				}
+				else{
+					$effectiveness_array[$val["name"]] = 0.5;
+				}
+			}
+			foreach($typesArray["damage_relations"]["no_damage_" . $str] as $val){
+				if(isset($effectiveness_array[$val["name"]])){
+					$effectiveness_array[$val["name"]] = $effectiveness_array[$val["name"]] * 0;
+				}
+				else{
+					$effectiveness_array[$val["name"]] = 0;
 				}
 			}
 		}
-		
+
 		return $effectiveness_array;
 	}
 	catch(Exception $ex){
@@ -436,17 +495,27 @@ function showTypeInfo($type1, $type2){
 }
 
 /*
-* typeInfo = array from showTypeInfo
+* typeInfo = array from getTypeInfo
 */
-function displayTypeInfo($typeInfo){
+function displayTypeInfo($typeInfo, $title){
 	arsort($typeInfo);
+	
+	?>
+		<div class="type-eff col-5 col-md-1">
+			<div class="progress position-relative progress-type type-neutral">
+				<div class="progress-bar progress-bar-striped <?php if($title == "offensive"){echo "bg-danger"; } ?>" role="progressbar" style="width:100%"></div>
+				<medium class="justify-content-center d-flex position-absolute w-100 h6 strokeme"><?php echo ucfirst($title); ?></medium>
+			</div>
+		</div>
+		<?php
+	
 	foreach($typeInfo as $key => $val){
 		if($val != 1){
 		?>
 		<div class="type-eff col-5 col-md-1">
-			<div class="progress position-relative progress-type type-<?php echo str_replace(".", "", $val); ?>">
-				<div class="progress-bar progress-bar-striped bg-<?php echo $key; ?>" role="progressbar" style="width:100%"></div>
-				<medium class="justify-content-center d-flex position-absolute w-100 h6 strokeme"><?php echo $key . "<br>x" . $val; ?></medium>
+			<div class="progress position-relative progress-type type-<?php echo $title . str_replace(".", "", $val); ?>">
+				<div class="progress-bar progress-bar-striped bg-<?php echo ucfirst($key); ?>" role="progressbar" style="width:100%"></div>
+				<medium class="justify-content-center d-flex position-absolute w-100 h6 strokeme"><?php echo ucfirst($key) . "<br>x" . $val; ?></medium>
 			</div>
 		</div>
 		<?php
@@ -531,7 +600,6 @@ function getSmogonJson($pkmn, $gen = null){
 			//Check if url exists
 			$url = "https://www.smogon.com/dex/" . $gen . "/pokemon/" . $pkmnLower . "/";
 			$headers = get_headers($url);
-			echo $url;
 			$head = $headers[0];
 			if(strpos($head, "200")){
 				$content = file_get_contents($url);

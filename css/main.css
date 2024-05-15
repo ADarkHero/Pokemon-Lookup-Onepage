@@ -85,23 +85,29 @@ table{
 /***************
 * Type borders
 ***************/
-.type-0{
-	border: 0.25rem solid #dc3545;
+.type-defensive8, .type-offensive0{
+	border: 0.25rem solid #dc3545; /* red */
 }
-.type-025{
-	border: 0.25rem solid #ffc107;
+.type-defensive4, .type-offensive025{
+	border: 0.25rem solid #dc3545;  /* red */
 }
-.type-05{
-	border: 0.25rem solid #ffc107;
+.type-defensive2, .type-offensive05{
+	border: 0.25rem solid #ffc107; /* yellow */
 }
-.type-2{
-	border: 0.25rem solid #28a745;
+.type-defensive05, .type-offensive2{
+	border: 0.25rem solid #28a745; /* green */
 }
-.type-4{
-	border: 0.25rem solid #007bff;
+.type-defensive025, .type-offensive4{
+	border: 0.25rem solid #007bff; /* blue */
 }
-.type-8{
-	border: 0.25rem solid #007bff;
+.type-defensive0, .type-offensive8{
+	border: 0.25rem solid #007bff; /* blue */
+}
+.type-neutral{
+	border: 0.25rem solid #000000;
+}
+.type-neutral medium{
+	padding-top: 0.5rem;
 }
   
   
