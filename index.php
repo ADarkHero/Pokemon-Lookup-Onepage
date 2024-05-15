@@ -122,11 +122,7 @@
 				<?php 
 					echo '<medium class="h6">' . $pkmn["name"] . '</medium>'; 
 					if($pkmn["oob"]["evos"]){
-						echo "<br> ( evolves to ";
-						foreach($pkmn["oob"]["evos"] as $evo){
-							echo '<a href="index.php?pokemon='.$evo.'">' . $evo . '</a> ';
-						}
-						echo ")";
+						echo "<br>" . getEvoData(($pkmn["name"]));
 					}
 				?>
 			</div>
@@ -418,12 +414,7 @@ function showAbilityInfo($ability){
 
 
 function getTypeInfo($type1, $type2, $offDef){
-	try{		
-		$strJsonFileContents = file_get_contents("pokemon.json");
-		//var_dump($strJsonFileContents); // show contents
-		
-		$pokemonArray = json_decode($strJsonFileContents, true);
-		
+	try{						
 		$effectiveness_array = array();
 		if($type2 != ""){
 			$types_array = array($type1, $type2);
@@ -521,6 +512,98 @@ function displayTypeInfo($typeInfo, $title){
 		<?php
 		}
 	}
+}
+
+
+function getEvoData($pkmn){
+	try{			
+		$pkmn = lowerDash($pkmn);
+		$filename = "json/pokemon-species/" . $pkmn . ".json";
+		$json = "";
+		$evoBase = "evolves to: ";
+		$evo = $evoBase;
+
+		if(file_exists($filename)){
+			$json = file_get_contents($filename);
+		}
+		//If the data was not crawled, download it from smogon
+		else{
+			//Check if url exists
+			$url = "https://pokeapi.co/api/v2/pokemon-species/" . lowerDash($pkmn) . "/";
+			
+			$headers = get_headers($url);
+			$head = $headers[0];
+			if(strpos($head, "200")){
+				$json = file_get_contents($url);
+				
+				file_put_contents($filename, $json, LOCK_EX);
+			}
+		}	
+		
+		$speciesArray = json_decode($json, true);
+				
+		$filename = "json/evolution-chain/" . $pkmn . ".json";
+		$json = "";
+
+		if(file_exists($filename)){
+			$json = file_get_contents($filename);
+		}
+		//If the data was not crawled, download it from smogon
+		else{
+			//Check if url exists
+			$url = $speciesArray["evolution_chain"]["url"];
+			
+			$headers = get_headers($url);
+			$head = $headers[0];
+			if(strpos($head, "200")){
+				$json = file_get_contents($url);
+				
+				file_put_contents($filename, $json, LOCK_EX);
+			}
+		}
+		$evoArray = json_decode($json, true);
+		foreach($evoArray["chain"]["evolves_to"] as $curEvo){
+			//Only get NEXT evolutions, not PAST ones
+			//Start of chain
+			if($evoArray["chain"]["species"]["name"]  == $pkmn){
+				if($evo != $evoBase){ $evo = $evo . "<br>"; }
+				$evo = $evo . getEvoCondition($curEvo);
+			}
+			
+			if($curEvo["species"]["name"] == $pkmn){				
+				foreach($curEvo["evolves_to"] as $curEvo2){
+					if($evo != $evoBase){ $evo = $evo . "<br>"; }
+					$evo = $evo . getEvoCondition($curEvo2);
+				}		
+			}
+		}
+
+		return $evo;
+	}
+	catch(Exception $ex){
+	}
+}
+
+function getEvoCondition($evoArr){	
+	$evoConditions = "";
+
+	foreach ($evoArr["evolution_details"] as $evos){
+		foreach ($evos as $key => $value){
+			if(!($value == null)){				
+				if(is_array($value) && $key != "trigger"){	
+					if($evoConditions != ""){ $evoConditions = $evoConditions . "; "; } //Space after first condition		
+					$evoConditions = $evoConditions . $key . ": " . $value["name"];
+				}
+				else if($key != "trigger"){
+					if($evoConditions != ""){ $evoConditions = $evoConditions . "; "; } //Space after first condition
+					$evoConditions = $evoConditions . $key . ": " . $value;
+				}		
+			}
+		}
+	}
+	
+	$pkmnName = ucfirst($evoArr["species"]["name"]);
+	return '<a href="index.php?pokemon='.$pkmnName.'">' . $pkmnName . "</a> (" . $evoConditions . ")";
 }
 
 /*
