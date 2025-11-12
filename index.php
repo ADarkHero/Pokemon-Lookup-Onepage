@@ -92,10 +92,16 @@
             <a class="nav-link" href="https://bulbapedia.bulbagarden.net/w/index.php?title=Special%3ASearch&search=<?php echo lowerDash($pkmn["name"]); ?>&go=Go" target="_blank">Bulbapedia</a>
           </li>
 		  <li class="nav-item">
-            <a class="nav-link" href="https://www.smogon.com/dex/<?php if(isset($_GET["gen"])){ echo "sv"; } else { echo "sm"; }?>/pokemon/<?php echo lowerDash($pkmn["name"]); ?>/"  target="_blank">Smogon</a>
+            <a class="nav-link" href="https://www.smogon.com/dex/<?php if(isset($_GET["gen"])){ echo "sm"; } else { echo "sv"; }?>/pokemon/<?php echo lowerDash($pkmn["name"]); ?>/"  target="_blank">Smogon</a>
           </li>
 		  <li class="nav-item">
             <a class="nav-link" href="https://pokemondb.net/type/"  target="_blank">Type Chart</a>
+          </li>
+		  <li class="nav-item">
+            <a class="nav-link" href="https://mypokemonteam.com"  target="_blank">Teambuilder</a>
+          </li>
+		  <li class="nav-item">
+            <a class="nav-link" href="https://veekun.com/dex/pokemon/search"  target="_blank">Advanced Search</a>
           </li>
 		  <li class="nav-item">
             <a class="nav-link" href="https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number"  target="_blank">Pokédex</a>
@@ -363,17 +369,17 @@ function getTierAsProgressBar($tier, $pkmnName){
 	switch($tier){
 		case "Uber": $text .= "S"; $color = ""; break;
 		case "OU": $text .= "A"; $color = "bg-success"; break;
-		case "OUBL": $text .= "A"; $color = "bg-success"; break;
+		case "OUBL": $text .= "A+"; $color = "bg-success"; break;
 		case "UU": $text .= "B"; $color = "bg-info"; break;
-		case "UUBL": $text .= "B"; $color = "bg-info"; break;
+		case "UUBL": $text .= "B+"; $color = "bg-info"; break;
 		case "RU": $text .= "C"; $color = "bg-warning"; break;
-		case "RUBL": $text .= "C"; $color = "bg-warning"; break;
+		case "RUBL": $text .= "C+"; $color = "bg-warning"; break;
 		case "NU": $text .= "D"; $color = "bg-danger"; break;
-		case "NUBL": $text .= "D"; $color = "bg-danger"; break;
+		case "NUBL": $text .= "D+"; $color = "bg-danger"; break;
 		case "PU": $text .= "E"; $color = "bg-danger"; break;
-		case "PUBL": $text .= "E"; $color = "bg-danger"; break;
-		case "LC": $text .= "?"; $color = "bg-dark"; break;
-		case "NFE": $text .= "?"; $color = "bg-dark"; break;
+		case "PUBL": $text .= "E+"; $color = "bg-danger"; break;
+		case "LC": $text .= "F"; $color = "bg-dark"; break;
+		case "NFE": $text .= "F"; $color = "bg-dark"; break;
 		case "National Dex": 
 			$text .= "?"; 
 			$color = "bg-dark"; 
